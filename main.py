@@ -39,17 +39,19 @@ class Node:
         # 금수 제외 가능한 모든 다음 노드 찾기 # 가능한 children node들의 집합 set() 반환
         childrenSet = set()
         if self.myColor == 1:
-            if self.state[0] != 1 and self.state[0] != 2 :
-                childNode = self.state
-                childNode[i] = 1
-                childrenSet.add(childNode)
-            return childrenSet      # 금수 제외 안했음
+            for i in self.state:
+                for j in self.state:
+                    if self.state[i][j] != 1 and self.state[i][j] != 2 :
+                        childNode = self.state
+                        childNode[i][j] = 1
+                        childrenSet.add(childNode)
+                    return childrenSet      # 금수 제외 안했음
         else:
             for i in self.state:
                 for j in self.state:
-                    if self.state[i] != 1 and self.state[i] != 2:
+                    if self.state[i][j] != 1 and self.state[i][j] != 2:
                         childNode = self.state
-                        childNode[i] = 2
+                        childNode[i][j] = 2
                         childrenSet.add(childNode)
             return childrenSet
 
@@ -186,10 +188,7 @@ class MCTS:
 
 def game():
     tree = MCTS()
-    list1 = []
-
-    board = namedtuple('board', 'index')
-    board = board(index=(0,) * 225)
+    board = np.zeros((15,15,1), int)
     node = Node(board,1) # 흑돌이라고 가정
     while True:
         for _ in range(100): # mcts 탐색 횟수
@@ -198,5 +197,3 @@ def game():
         print(node)
 
 game()
-
-
