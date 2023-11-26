@@ -37,9 +37,12 @@ def main(player_stone: int):
 
     omok = Omok(surface,player_stone)
     # selectLevel = # hard 면 true, easy면 false
+    selectLevel = omok.draw_chioce_screen()
+    omok.draw_board()
     t = threading.Thread(target=start_ai_thread,args=(omok,selectLevel,))
     t.daemon = True
     t.start()
+
     while True:
         run_game(surface, omok)
 
@@ -97,8 +100,9 @@ class Omok(object):
 
         self.turn = black_stone
         self.player_stone = player_stone
-        self.draw_board()
         self.coords = []
+
+        self.menu_button_rects = []
 
     def set_image(self):
         black_img = pygame.image.load('gui/image/black.png')
@@ -114,6 +118,47 @@ class Omok(object):
 
     def is_ai_turn(self):
         return not self.is_player_turn()
+
+    def draw_chioce_screen(self):
+        title_font = pygame.font.Font(None, 50)
+        title_text = title_font.render("Omok-HI", True, black)
+        choice_text = title_font.render("Select AI Level.", True, black)
+        hard_level = title_font.render("Hard", True, black)
+        easy_level = title_font.render("Easy", True, black)
+        self.menu_button_rects.append(pygame.Rect(100, 300, 100, 50))
+        self.menu_button_rects.append(pygame.Rect(300, 300, 100, 50))
+
+        while True:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    exit()
+                if event.type == MOUSEBUTTONUP:
+                    level = self.check_menu_button_click(event.pos)
+                    if level == 0:
+                        return True
+                    elif level == 1:
+                        return False
+
+            self.surface.fill(white)
+            self.surface.blit(title_text, [170, 150])
+            self.surface.blit(choice_text, [120, 200])
+            pygame.draw.rect(self.surface, (200, 200, 200), self.menu_button_rects[0])
+            pygame.draw.rect(self.surface, (200, 200, 200), self.menu_button_rects[1])
+            self.surface.blit(hard_level, [110, 310])
+            self.surface.blit(easy_level, [310, 310])
+
+            pygame.display.flip()
+            fps_clock.tick(30)
+
+    def check_menu_button_click(self, pos):
+        if self.menu_button_rects[0].collidepoint(pos):
+            return 0
+        elif self.menu_button_rects[1].collidepoint(pos):
+            return 1
+        else:
+            return 99
+
 
     def draw_board(self):
         self.surface.blit(self.board_img, (0, 0))
