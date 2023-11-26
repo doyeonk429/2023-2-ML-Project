@@ -36,7 +36,8 @@ def main(player_stone: int):
     surface.fill(bg_color)
 
     omok = Omok(surface,player_stone)
-    t = threading.Thread(target=start_ai_thread,args=(omok,))
+    # selectLevel = # hard 면 true, easy면 false
+    t = threading.Thread(target=start_ai_thread,args=(omok,selectLevel,))
     t.daemon = True
     t.start()
     while True:
@@ -185,7 +186,7 @@ def board_expand_demand(board: np.ndarray):
             board_new[i][j][0] = board[i][j]
     return board_new
 
-def start_ai_thread(omok: Omok):
+def start_ai_thread(omok: Omok, valueBool: False):
     global game_over
     from node import Node
     from mcts_module import MCTS
@@ -205,7 +206,7 @@ def start_ai_thread(omok: Omok):
         # AI 차례인 경우
         # while True:
         for _ in range(shared.MAX_ROLLOUT):  # mcts 탐색 횟수
-            tree.rollout(node)  # current board = node
+            tree.rollout(node, valueBool)  # current board = node
         next_node: Node = tree.move(node)  # board를 선택한 다음 node로 바꿈
         next_node.print_state()
         y,x = next_node.last_yx
