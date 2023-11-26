@@ -97,25 +97,33 @@ class MCTS:
 
 
     def expand(self, node: Node, actions_probs, node_color: int):
-        is_black = True if node_color == shared.BLACK else False
+        # 다음 임시 오목판 상태를 만듦
+        is_black = True if node_color == shared.BLACK else False        # AI가 흑돌이면 True, 백돌이면 False
         bound = 0.1
         all_childs = set()
+        
         if node in self.children:
             all_childs = self.children[node]
         else:
             self.children[node] = all_childs
-
+        
         probs_with_index = list(sorted(list(zip(range(0,225),actions_probs)), key=lambda k: -k[1]))
         probs_upper_bound = list(filter(lambda k: k[1] > bound, probs_with_index))
+        
         # 0.1 확률이 넘는게 없는 경우
         if not probs_upper_bound:
             probs_upper_bound.append(probs_with_index[0])
 
         for idx,prob in probs_upper_bound:
+            # 다음 노드 고름
             node_next = Node(node.get_state(), utils.change_color(node_color), node.depth + 1)
             y,x = idx // 15, idx % 15
+            
+            # 다음 노드에 set_stone
             node_next.set_stone(y,x,node_color)
             print("depth :",node.depth)
+            
+            # 다음 노드가 child가 아니면 children에 추가
             if node_next not in all_childs:
                 self.children[node].add(node_next)
 
@@ -186,6 +194,7 @@ class MCTS:
             reward = 1 - reward # 상대에겐 reward 주면 안됨
 
     def uct(self, node):
+        # uct 공식 이용하여 우선 탐색할 노드 선택
         ln_n = np.log(self.N[node])
 
         def uct_formula(n):
