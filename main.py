@@ -1,7 +1,13 @@
 import os
 from collections import defaultdict
 
+'''
+===========================================
+==  이 main.py 파일을 run하시면 됩니다!!!  ==
+==                                       ==
+===========================================
 
+'''
 
 import numpy as np
 
@@ -60,8 +66,6 @@ MAX_ROLL_OUT = 20
 #             print("플레이어가 이겼습니다")
 #             return
 #         node.next_color()
-
-
 
 
 if __name__ == '__main__':
