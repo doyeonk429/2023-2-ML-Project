@@ -35,10 +35,19 @@ def main(player_stone: int):
     pygame.display.set_caption("Omok-HI")
     surface.fill(bg_color)
 
-    omok = Omok(surface,player_stone)
+    
+    omok = Omok(surface, player_stone)
     # selectLevel = # hard 면 true, easy면 false
     selectLevel = omok.draw_chioce_screen()
     omok.draw_board()
+    
+    # 여기에서 유저 인풋(7,7)을 먼저 받아야함..
+    mycoord = omok.pixel_coords[7 * 15 + 7]
+    omok.coords.append(mycoord)
+    omok.draw_stone(mycoord, omok.turn)
+    pygame.display.update()
+    
+    # mcts 돌림
     t = threading.Thread(target=start_ai_thread,args=(omok,selectLevel,))
     t.daemon = True
     t.start()
@@ -89,7 +98,7 @@ def run_game(surface, omok):
         fps_clock.tick(fps)
 
 class Omok(object):
-    def __init__(self, surface,player_stone: int):
+    def __init__(self, surface, player_stone: int):
         assert player_stone in [shared.BLACK, shared.WHITE]
 
         self.board = np.zeros((board_size, board_size))
@@ -98,7 +107,7 @@ class Omok(object):
         self.set_coords()
         self.set_image()
 
-        self.turn = black_stone
+        self.turn = player_stone # black_stone, white_stone
         self.player_stone = player_stone
         self.coords = []
 
@@ -127,6 +136,12 @@ class Omok(object):
         easy_level = title_font.render("Easy", True, black)
         self.menu_button_rects.append(pygame.Rect(100, 300, 100, 50))
         self.menu_button_rects.append(pygame.Rect(300, 300, 100, 50))
+        
+        # turn_choice_text = title_font.render("Select Your Turn.", True, black)
+        # ai_white = title_font.render("First : black stone", True, black)
+        # ai_black = title_font.render("Last : white stone", True, black)
+        # self.menu_button_rects.append(pygame.Rect(100, 600, 100, 50))
+        # self.menu_button_rects.append(pygame.Rect(300, 600, 100, 50))
 
         while True:
             for event in pygame.event.get():
@@ -142,6 +157,7 @@ class Omok(object):
 
             self.surface.fill(white)
             self.surface.blit(title_text, [170, 150])
+            self.surface.blit(choice_text, [120, 200])
             self.surface.blit(choice_text, [120, 200])
             pygame.draw.rect(self.surface, (200, 200, 200), self.menu_button_rects[0])
             pygame.draw.rect(self.surface, (200, 200, 200), self.menu_button_rects[1])
@@ -236,7 +252,11 @@ def start_ai_thread(omok: Omok, valueBool: False):
     from node import Node
     from mcts_module import MCTS
     PLAYER_STONE = omok.player_stone
-    AI_STONE = shared.WHITE if PLAYER_STONE == shared.BLACK else shared.BLACK
+    if PLAYER_STONE == shared.BLACK:
+        AI_STONE = shared.WHITE
+    else:
+        AI_STONE = shared.BLACK
+        # if PLAYER_STONE == shared.BLACK else shared.BLACK
     tree = MCTS()
     shared.mcts_tree = tree
     board = np.zeros((15, 15, 1), int)
@@ -286,7 +306,7 @@ def start_ai_thread(omok: Omok, valueBool: False):
 
 
 def start_game():
-    main(player_stone=shared.WHITE)
+    main(player_stone=shared.BLACK)
 
 def message_box(message):
     from tkinter import messagebox
